@@ -4,6 +4,6 @@ name=TEST
 
 ###
 
-GET http://localhost:3435/ebook/list
+GET http://localhost:3435/ebook/list?name=spring
 
 ###

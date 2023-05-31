@@ -3,6 +3,9 @@ package com.jiawa.wiki2.controller;
 
 import com.jiawa.wiki2.domain.Demo;
 import com.jiawa.wiki2.domain.Ebook;
+import com.jiawa.wiki2.req.EbookReq;
+import com.jiawa.wiki2.resp.CommonResp;
+import com.jiawa.wiki2.resp.EbookResp;
 import com.jiawa.wiki2.service.DemoService;
 import com.jiawa.wiki2.service.EbookService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +19,10 @@ public class EbookController {
     @Resource
     private EbookService ebookService;
     @GetMapping("/ebook/list")
-    public List<Ebook> list() {
-        return ebookService.list();
+    public CommonResp list(EbookReq req) {//EbookReq is POJO, 是封装请求的类
+        CommonResp<List<EbookResp>> resp = new CommonResp<>();
+        List<EbookResp> list = ebookService.list(req);
+        resp.setContent(list);
+        return resp;
     }
 }

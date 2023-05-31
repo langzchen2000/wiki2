@@ -743,7 +743,7 @@ public class EbookExample {
             this.value = value;
             this.typeHandler = typeHandler;
             if (value instanceof List<?>) {
-                this.listValue = true;
+                this.listValue= true;
             } else {
                 this.singleValue = true;
             }
