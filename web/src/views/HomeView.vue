@@ -46,15 +46,10 @@
     <a-layout-content
             :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
     >
-        <a-list item-layout="vertical" size="large" :pagination="pagination" :data-source="listData">
-            <template #footer>
-                <div>
-                    <b>ant design vue</b>
-                    footer part
-                </div>
-            </template>
+        <a-list item-layout="vertical" size="large" :data-source="ebooks" :grid="{ gutter: 20, column: 3}">
+
             <template #renderItem="{ item }">
-                <a-list-item key="item.title">
+                <a-list-item key="item.name">
                     <template #actions>
           <span v-for="{ type, text } in actions" :key="type">
             <component v-bind:is="type" style="margin-right: 8px" />
@@ -70,9 +65,9 @@
                     </template>
                     <a-list-item-meta :description="item.description">
                         <template #title>
-                            <a :href="item.href">{{ item.title }}</a>
+                            <a :href="item.href">{{ item.name }}</a>
                         </template>
-                        <template #avatar><a-avatar :src="item.avatar" /></template>
+                        <template #avatar><a-avatar :src="item.cover" /></template>
                     </a-list-item-meta>
                     {{ item.content }}
                 </a-list-item>
@@ -107,7 +102,7 @@ export default defineComponent({
       const ebooks1 = reactive({books: []});
       onMounted(() => {
           console.log('on mounted');
-          axios.get("http://localhost:3435/ebook/list?name=spring").then((response) => {
+          axios.get("http://localhost:3435/ebook/list").then((response) => {
               const data  = response.data;
               ebooks.value = data.content;
               ebooks1.books = data.content;
