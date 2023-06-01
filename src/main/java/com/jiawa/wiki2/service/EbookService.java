@@ -1,37 +1,59 @@
 package com.jiawa.wiki2.service;
 
-import com.jiawa.wiki2.domain.Demo;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.jiawa.wiki2.domain.Ebook;
 import com.jiawa.wiki2.domain.EbookExample;
-import com.jiawa.wiki2.mapper.DemoMapper;
 import com.jiawa.wiki2.mapper.EbookMapper;
-import com.jiawa.wiki2.req.EbookReq;
-import com.jiawa.wiki2.resp.EbookResp;
+import com.jiawa.wiki2.req.EbookQueryReq;
+import com.jiawa.wiki2.req.EbookSaveReq;
+import com.jiawa.wiki2.resp.EbookQueryResp;
+import com.jiawa.wiki2.resp.PageResp;
 import com.jiawa.wiki2.util.CopyUtil;
-import org.springframework.beans.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class EbookService {
     @Resource
     private EbookMapper ebookMapper;
+    private static final Logger LOG = LoggerFactory.getLogger(EbookService.class);
 
-    public List<EbookResp> list(EbookReq req) {
+    public PageResp<EbookQueryResp> list(EbookQueryReq req) {
         EbookExample ebookExample = new EbookExample();
         EbookExample.Criteria criteria = ebookExample.createCriteria();
         if (!ObjectUtils.isEmpty(req.getName())) {
             criteria.andNameLike("%" + req.getName() + "%");
         }
+        PageHelper.startPage(req.getPage(), req.getSize());
         List<Ebook> ebookList = ebookMapper.selectByExample(ebookExample);
 
-        List<EbookResp> respList = CopyUtil.copyList(ebookList, EbookResp.class);
+        List<EbookQueryResp> respList = CopyUtil.copyList(ebookList, EbookQueryResp.class);
+        PageInfo<Ebook> pageInfo = new PageInfo<>(ebookList);
+        LOG.info("总行数：{}", pageInfo.getTotal());
+        LOG.info("总页数：{}", pageInfo.getPages());
 
+        PageResp<EbookQueryResp> pageResp = new PageResp();
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setList(respList);
 
-        return respList;
+        return pageResp;
     }
+
+    public void save(EbookSaveReq req) {
+        Ebook ebook = CopyUtil.copy(req, Ebook.class);
+        if (ObjectUtils.isEmpty(req.getId())) {
+            // 新增
+            ebookMapper.insert(ebook);
+        } else {
+            // 更新
+            ebookMapper.updateByPrimaryKey(ebook);
+        }
+    }
+
 }

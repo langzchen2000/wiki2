@@ -4,6 +4,11 @@ name=TEST
 
 ###
 
-GET http://localhost:3435/ebook/list?name=spring
+GET http://localhost:3435/ebook/list
 
 ###
+###
+
+POST http://localhost:3435/ebook/save
+Content-Type: application/json
+{}
