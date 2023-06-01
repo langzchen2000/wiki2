@@ -1,7 +1,6 @@
 <template>
     <a-layout>
       <the-header></the-header>
-
             <router-view/>
         <the-footer></the-footer>
     </a-layout>
@@ -9,8 +8,8 @@
 <script lang="ts">
 
 import { defineComponent, ref } from 'vue';
-import theHeader from "@/components/the-header.vue";
-import TheFooter from "@/components/the-footer.vue";
+import theHeader from "./components/the-header.vue";
+import TheFooter from "./components/the-footer.vue";
 export default defineComponent({
     name: 'app',
     components: {
