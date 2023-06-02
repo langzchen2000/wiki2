@@ -10,6 +10,7 @@ import com.jiawa.wiki2.req.EbookSaveReq;
 import com.jiawa.wiki2.resp.EbookQueryResp;
 import com.jiawa.wiki2.resp.PageResp;
 import com.jiawa.wiki2.util.CopyUtil;
+import com.jiawa.wiki2.util.SnowFlake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,10 @@ import java.util.List;
 
 @Service
 public class EbookService {
-    @Resource
+    @Resource//这里的Resource是Java的注解，不是Spring的注解
     private EbookMapper ebookMapper;
+    @Resource
+    private SnowFlake snowFlakeService;
     private static final Logger LOG = LoggerFactory.getLogger(EbookService.class);
 
     public PageResp<EbookQueryResp> list(EbookQueryReq req) {
@@ -49,6 +52,7 @@ public class EbookService {
         Ebook ebook = CopyUtil.copy(req, Ebook.class);
         if (ObjectUtils.isEmpty(req.getId())) {
             // 新增
+            ebook.setId(snowFlakeService.nextId());
             ebookMapper.insert(ebook);
         } else {
             // 更新

@@ -3,18 +3,21 @@
         <a-layout-content
             :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
         >
+            <p>
+                <a-button type="primary" @click="add" size="large">添加</a-button>
+            </p>
             <a-table
                 :columns="columns"
                 :row-key="record => record.id"
                 :data-source="ebooks"
-                :pagination="pagination"
+                v-model:pagination="pagination"
                 :loading="loading"
                 @change="handleTableChange"
-            >
+            >   <!-- record is an item of data source @change pass a new pagination object to handleTableChange-->
                 <template #cover="{ text: cover }">
                     <img v-if="cover" :src="cover" alt="avatar" />
                 </template>
-                <template v-slot:action="{ record }">
+                <template #action="{ record }">
                     <a-space size="small">
                         <a-button type="primary" @click="edit(record)">
                             编辑
@@ -121,26 +124,33 @@ export default defineComponent({
                 loading.value = false;
                 const data = response.data;
                 ebooks.value = data.content.list;
-
                 // 重置分页按钮
-                pagination.value.current = params.page;
-                pagination.value.total = data.content.total;
+                pagination.value.current = params.page;//当前页
+                pagination.value.total = data.content.total;//总条数
             });
-        };
+        };//onMounted 会在页面渲染之后执行, 点击页码也会触发
 
         /**
          * 表格点击页码时触发
          */
         const handleTableChange = (pagination: any) => {
-            console.log("看看自带的分页参数都有啥：" + pagination);
             handleQuery({
                 page: pagination.current,
                 size: pagination.pageSize
-            });
-        };
+            });//pagination 可以是任意对象
+        };//表格点击页码时触发
 
         // -------- 表单 ---------
-        const ebook = ref({});
+        const ebook = ref({
+            cover: '',
+            name: '',
+            category1Id: '',
+            category2Id: '',
+            desc: '',
+            docCount: 0,
+            viewCount: 0,
+            voteCount: 0
+        });
         const modalVisible = ref(false);
         const modalLoading = ref(false);
         const handleModalOk = () => {
@@ -158,7 +168,7 @@ export default defineComponent({
                     });
                 }
             });
-        };
+        };//表单提交
 
         /**
          * 编辑
@@ -167,6 +177,20 @@ export default defineComponent({
             modalVisible.value = true;
             ebook.value = record
         };
+
+        const add = () => {
+            ebook.value = {
+                    cover: '',
+                    name: '',
+                    category1Id: '',
+                    category2Id: '',
+                    desc: '',
+                    docCount: 0,
+                    viewCount: 0,
+                    voteCount: 0
+            };
+            modalVisible.value = true;
+        }
 
         onMounted(() => {
             handleQuery({
@@ -183,6 +207,7 @@ export default defineComponent({
             handleTableChange,
 
             edit,
+            add,
 
             ebook,
             modalVisible,
