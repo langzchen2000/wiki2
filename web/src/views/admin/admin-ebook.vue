@@ -22,9 +22,17 @@
                         <a-button type="primary" @click="edit(record)">
                             编辑
                         </a-button>
-                        <a-button type="danger">
-                            删除
-                        </a-button>
+                        <a-popconfirm
+                            title="Are you sure delete this task?"
+                            ok-text="Yes"
+                            cancel-text="No"
+                            @confirm="handleDelete(record)"
+                        >
+                            <a-button type="danger">
+                                删除
+                            </a-button>
+                        </a-popconfirm>
+
                     </a-space>
                 </template>
             </a-table>
@@ -60,6 +68,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
 import axios from 'axios';
+import {message} from "ant-design-vue";
 
 export default defineComponent({
     name: 'AdminEbook',
@@ -123,10 +132,14 @@ export default defineComponent({
             }).then((response) => {
                 loading.value = false;
                 const data = response.data;
-                ebooks.value = data.content.list;
-                // 重置分页按钮
-                pagination.value.current = params.page;//当前页
-                pagination.value.total = data.content.total;//总条数
+                if(data.success){
+                    ebooks.value = data.content.list;
+                    // 重置分页按钮
+                    pagination.value.current = params.page;//当前页
+                    pagination.value.total = data.content.total;//总条数
+                } else {
+                    message.error(data.message);
+                }
             });
         };//onMounted 会在页面渲染之后执行, 点击页码也会触发
 
@@ -192,6 +205,30 @@ export default defineComponent({
             modalVisible.value = true;
         }
 
+        const handleDelete = (record: any) => {
+            axios.delete("/ebook/" + record.id).then((response) => {
+                const data = response.data;
+                if (data.success) {
+                    // 重新加载列表
+                    handleQuery({
+                        page: pagination.value.current,
+                        size: pagination.value.pageSize,
+                    });
+                }
+            });
+        };
+
+        //删除按键
+        const confirm = (e: MouseEvent) => {
+            console.log(e);
+            message.success('Click on Yes');
+        };
+
+        const cancel = (e: MouseEvent) => {
+            console.log(e);
+            message.error('Click on No');
+        };
+
         onMounted(() => {
             handleQuery({
                 page: 1,
@@ -208,11 +245,15 @@ export default defineComponent({
 
             edit,
             add,
+            handleDelete,
 
             ebook,
             modalVisible,
             modalLoading,
-            handleModalOk
+            handleModalOk,
+
+            confirm,
+            cancel
         }
     }
 });

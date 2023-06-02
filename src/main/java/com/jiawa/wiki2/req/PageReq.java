@@ -1,8 +1,14 @@
 package com.jiawa.wiki2.req;
 
-public class PageReq {
-    private int page;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
+public class PageReq {
+    @NotNull(message = "page shouldn't be null")
+    private int page;
+    @NotNull(message = "size shouldn't be null")
+    @Max(value=1000, message="size should be less than 1000")
     private int size;
 
     public int getPage() {

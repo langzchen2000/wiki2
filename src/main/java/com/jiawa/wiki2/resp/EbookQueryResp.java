@@ -1,6 +1,10 @@
 package com.jiawa.wiki2.resp;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 public class EbookQueryResp {
+
     private Long id;
 
     private String name;
