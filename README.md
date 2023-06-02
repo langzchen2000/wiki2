@@ -5,18 +5,25 @@ This project utilizes Vue as the front-end framework and SpringBoot for the back
 
 ## Getting Started
 
-1. Clone this repository
-·git clone https://github.com/langzchen2000/wiki2·
+```
+# clone the repo
+$ git clone https://github.com/langzchen2000/wiki2
 
-2. Install MySQL, Node.js
+# go into app's directory and install dependencies:
+$ cd myproject
 
-3. Build Maven project and run npm -i
+$ npm install
 
-3. Setting up the database
-execute setup.sql
+# serve with hot reload at localhost:8080 by default.
+$ npm run serve-dev
 
-4. Build and start the backend server
-run npm script
+# build for production
+$ npm run build
+
+# build for production and view the bundle analyzer report.
+$ npm run build --report
+```
+
 
 
 
