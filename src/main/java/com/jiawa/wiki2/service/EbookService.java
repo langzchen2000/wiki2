@@ -64,4 +64,5 @@ public class EbookService {
         ebookMapper.deleteByPrimaryKey(id);
     }
 
+
 }

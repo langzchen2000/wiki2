@@ -37,4 +37,12 @@ public class EbookController {
         ebookService.delete(id);
         return resp;
     }
+
+    @GetMapping("/ebook/search")
+    public CommonResp search(@Valid EbookQueryReq req) {
+        CommonResp<PageResp<EbookQueryResp>> resp = new CommonResp<>();
+        PageResp<EbookQueryResp> list = ebookService.list(req);
+        resp.setContent(list);
+        return resp;
+    }
 }

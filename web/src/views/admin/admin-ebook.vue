@@ -3,9 +3,19 @@
         <a-layout-content
             :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
         >
-            <p>
+            <a-input
+                v-model:value="searchKey"
+                placeholder="input search text"
+                style="width: 200px; margin-right: 8px"
+
+            />
+
+
+                <a-button type="primary" @click="search" size="large" style="margin-right:8px">查询</a-button>
+
+
                 <a-button type="primary" @click="add" size="large">添加</a-button>
-            </p>
+
             <a-table
                 :columns="columns"
                 :row-key="record => record.id"
@@ -238,6 +248,26 @@ export default defineComponent({
             });
         });
 
+        //search
+        const searchKey = ref("");
+        const search = () => {
+            axios.get("/ebook/list", {
+                params: {
+                    name: searchKey.value,
+                    page: 1,
+                    size: 4
+                }
+            }).then((response) => {
+                const data = response.data;
+                if (data.success) {
+                    ebooks.value = data.content.list;
+                } else {
+                    message.error(data.message);
+                }
+
+            })
+        }
+
         return {
             ebooks,
             pagination,
@@ -255,7 +285,11 @@ export default defineComponent({
             handleModalOk,
 
             confirm,
-            cancel
+            cancel,
+
+            searchKey,
+            search
+
         }
     }
 });
