@@ -200,7 +200,7 @@ export default defineComponent({
          */
         const edit = (record: any) => {
             modalVisible.value = true;
-            ebook.value = record
+            ebook.value = Object.assign({}, record);
         };
 
         const add = () => {
