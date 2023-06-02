@@ -155,11 +155,11 @@ export default defineComponent({
 
         // -------- 表单 ---------
         const ebook = ref({
-            cover: '',
-            name: '',
-            category1Id: '',
-            category2Id: '',
-            desc: '',
+            cover: null,
+            name: null,
+            category1Id: null,
+            category2Id: null,
+            desc: null,
             docCount: 0,
             viewCount: 0,
             voteCount: 0
@@ -169,16 +169,18 @@ export default defineComponent({
         const handleModalOk = () => {
             modalLoading.value = true;
             axios.post("/ebook/save", ebook.value).then((response) => {
+                modalLoading.value = false;
                 const data = response.data; // data = commonResp
                 if (data.success) {
                     modalVisible.value = false;
-                    modalLoading.value = false;
 
                     // 重新加载列表
                     handleQuery({
                         page: pagination.value.current,
                         size: pagination.value.pageSize,
                     });
+                } else {
+                    message.error(data.message);
                 }
             });
         };//表单提交
@@ -193,11 +195,11 @@ export default defineComponent({
 
         const add = () => {
             ebook.value = {
-                    cover: '',
-                    name: '',
-                    category1Id: '',
-                    category2Id: '',
-                    desc: '',
+                    cover: null,
+                    name: null,
+                    category1Id: null,
+                    category2Id: null,
+                    desc: null,
                     docCount: 0,
                     viewCount: 0,
                     voteCount: 0

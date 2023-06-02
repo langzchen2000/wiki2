@@ -1,8 +1,10 @@
 package com.jiawa.wiki2.req;
 
+import javax.validation.constraints.NotNull;
+
 public class EbookSaveReq {
     private Long id;
-
+    @NotNull(message = "name shouldn't be null")
     private String name;
 
     private Long category1Id;
