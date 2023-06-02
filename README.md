@@ -6,7 +6,7 @@ This project utilizes Vue as the front-end framework and SpringBoot for the back
 ## Getting Started
 
 1. Clone this repository
-git clone https://github.com/langzchen2000/wiki2
+·git clone https://github.com/langzchen2000/wiki2·
 
 2. Install MySQL, Node.js
 
