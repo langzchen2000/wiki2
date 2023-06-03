@@ -5,32 +5,13 @@
                     mode="inline"
                     :style="{ height: '100%', borderRight: 0 }"
             >
-                <a-sub-menu key="sub1">
+                <a-sub-menu v-for="item in level1" :key="item.id">
                     <template #title>
-                        <span><user-outlined />subnav 11111</span>
+                        {{item.name}}
                     </template>
-                    <a-menu-item key="1">option1</a-menu-item>
-                    <a-menu-item key="2">option2</a-menu-item>
-                    <a-menu-item key="3">option3</a-menu-item>
-                    <a-menu-item key="4">option4</a-menu-item>
-                </a-sub-menu>
-                <a-sub-menu key="sub2">
-                    <template #title>
-                        <span><laptop-outlined />subnav 2</span>
-                    </template>
-                    <a-menu-item key="5">option5</a-menu-item>
-                    <a-menu-item key="6">option6</a-menu-item>
-                    <a-menu-item key="7">option7</a-menu-item>
-                    <a-menu-item key="8">option8</a-menu-item>
-                </a-sub-menu>
-                <a-sub-menu key="sub3">
-                    <template #title>
-                        <span><notification-outlined />subnav 3</span>
-                    </template>
-                    <a-menu-item key="9">option9</a-menu-item>
-                    <a-menu-item key="10">option10</a-menu-item>
-                    <a-menu-item key="11">option11</a-menu-item>
-                    <a-menu-item key="12">option12</a-menu-item>
+                    <a-menu-item v-for="item1 in item.children" :key="item1.id">
+                        <a :href="'/category/' + item1.id">{{ item1.name }}</a>
+                    </a-menu-item>
                 </a-sub-menu>
             </a-menu>
         </a-layout-sider>
@@ -62,6 +43,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref, reactive, toRef } from 'vue';
 import axios from 'axios';
+import {message} from "ant-design-vue";
 
 export default defineComponent({
     name: 'HomeView',
@@ -70,6 +52,7 @@ export default defineComponent({
         const ebooks1 = reactive({books: []});
 
         onMounted(() => {
+            handleQueryCategory();
             axios.get("/ebook/list", {
                 params: {
                     page: 1,
@@ -81,6 +64,48 @@ export default defineComponent({
                 // ebooks1.books = data.content;
             });
         });
+        /*sidebar*/
+        const level1 =  ref();
+        let categories : any = [];
+        /**
+         * 查询所有分类
+         **/
+        const handleQueryCategory = () => {
+            axios.get("/category/all").then((response) => {
+
+                const data = response.data;
+                if (data.success) {
+                    categories = data.content;
+                    console.log("原始数组：", categories);
+
+                    level1.value = [];
+                    level1.value = array2Tree(categories, 0);
+
+                } else {
+                    message.error(data.message);
+                }
+            });
+        };
+
+        const array2Tree = (array: any, parentId: number) => {
+            if (array.length === 0) {
+                return [];
+            }
+            const result = [];
+            for (let i = 0; i < array.length; i++) {
+                const c = array[i];
+                // console.log(Number(c.parent), Number(parentId));
+                if (Number(c.parent) === Number(parentId)) {
+                    result.push(c);
+                    // 递归查看当前节点对应的子节点
+                    const children = array2Tree(array, c.id);
+                    if (children.length > 0) {
+                        c.children = children;
+                    }
+                }
+            }
+            return result;
+        };
 
         return {
             ebooks,
@@ -97,6 +122,7 @@ export default defineComponent({
                 { type: 'LikeOutlined', text: '156' },
                 { type: 'MessageOutlined', text: '2' },
             ],
+            level1,
         }
     }
 });

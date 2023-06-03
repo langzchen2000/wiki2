@@ -44,6 +44,9 @@
 
                     </a-space>
                 </template>
+                <template #category="{record}">
+                    <span v-if="categories">{{getCategoryName(record.category1Id)}}/{{getCategoryName(record.category2Id)}}</span>
+                </template>
             </a-table>
         </a-layout-content>
     </a-layout>
@@ -102,13 +105,8 @@ export default defineComponent({
                 dataIndex: 'name'
             },
             {
-                title: '分类一',
-                key: 'category1Id',
-                dataIndex: 'category1Id'
-            },
-            {
-                title: '分类二',
-                dataIndex: 'category2Id'
+                title: 'Category',
+                slots: { customRender: 'category' }
             },
             {
                 title: '文档数',
@@ -223,6 +221,7 @@ export default defineComponent({
 
         /* search categories*/
         const level1 =  ref();
+        let categories : any = [];
         /**
          * 查询所有分类
          **/
@@ -232,18 +231,28 @@ export default defineComponent({
                 loading.value = false;
                 const data = response.data;
                 if (data.success) {
-                    const categorys = data.content;
-                    console.log("原始数组：", categorys);
+                    categories = data.content;
+                    console.log("原始数组：", categories);
 
                     level1.value = [];
-                    level1.value = array2Tree(categorys, 0);
+                    level1.value = array2Tree(categories, 0);
 
                 } else {
                     message.error(data.message);
                 }
             });
         };
-
+        const getCategoryName = (cid: number) => {
+            // console.log(cid)
+            let result = "";
+            categories.forEach((item: any) => {
+                if (item.id === cid) {
+                    // return item.name; // 注意，这里直接return不起作用
+                    result = item.name;
+                }
+            });
+            return result;
+        };
         const array2Tree = (array: any, parentId: number) => {
             if (array.length === 0) {
                 return [];
@@ -332,6 +341,8 @@ export default defineComponent({
             handleModalOk,
             categoryIds,
             level1,
+            categories,
+            getCategoryName,
 
             confirm,
             cancel,
