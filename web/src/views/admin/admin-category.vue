@@ -18,7 +18,7 @@
             <a-table
                 :columns="columns"
                 :row-key="record => record.id"
-                :data-source="ebooks"
+                :data-source="categories"
                 v-model:pagination="pagination"
                 :loading="loading"
                 @change="handleTableChange"
@@ -49,27 +49,23 @@
     </a-layout>
 
     <a-modal
-        title="电子书表单"
+        title="category table"
         v-model:visible="modalVisible"
         :confirm-loading="modalLoading"
         @ok="handleModalOk"
     >
-        <a-form :model="ebook" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-            <a-form-item label="封面">
-                <a-input v-model:value="ebook.cover" />
+        <a-form :model="category" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+
+            <a-form-item label="name">
+                <a-input v-model:value="category.name" />
             </a-form-item>
-            <a-form-item label="名称">
-                <a-input v-model:value="ebook.name" />
+            <a-form-item label="parent">
+                <a-input v-model:value="category.parent" />
             </a-form-item>
-            <a-form-item label="分类一">
-                <a-input v-model:value="ebook.category1Id" />
+            <a-form-item label="sort">
+                <a-input v-model:value="category.sort" />
             </a-form-item>
-            <a-form-item label="分类二">
-                <a-input v-model:value="ebook.category2Id" />
-            </a-form-item>
-            <a-form-item label="描述">
-                <a-input v-model:value="ebook.desc" type="textarea" />
-            </a-form-item>
+
         </a-form>
     </a-modal>
 </template>
@@ -80,9 +76,9 @@ import axios from 'axios';
 import {message} from "ant-design-vue";
 
 export default defineComponent({
-    name: 'AdminEbook',
+    name: 'AdminCategory',
     setup() {
-        const ebooks = ref();
+        const categories = ref();
         const pagination = ref({
             current: 1,
             pageSize: 4,
@@ -92,34 +88,18 @@ export default defineComponent({
 
         const columns = [
             {
-                title: '封面',
-                dataIndex: 'cover',
-                slots: { customRender: 'cover' }
-            },
-            {
-                title: '名称',
+                title: 'name',
                 dataIndex: 'name'
             },
             {
-                title: '分类一',
-                key: 'category1Id',
-                dataIndex: 'category1Id'
+                title: 'parent',
+                key: 'parent',
+                dataIndex: 'parent'
             },
             {
-                title: '分类二',
-                dataIndex: 'category2Id'
-            },
-            {
-                title: '文档数',
-                dataIndex: 'docCount'
-            },
-            {
-                title: '阅读数',
-                dataIndex: 'viewCount'
-            },
-            {
-                title: '点赞数',
-                dataIndex: 'voteCount'
+                title: 'sort',
+                key: 'sort',
+                dataIndex: 'sort'
             },
             {
                 title: 'Action',
@@ -133,7 +113,7 @@ export default defineComponent({
          **/
         const handleQuery = (params: any) => {
             loading.value = true;
-            axios.get("/ebook/list", {
+            axios.get("/category/list", {
                 params: {
                     page: params.page,
                     size: params.size
@@ -142,7 +122,7 @@ export default defineComponent({
                 loading.value = false;
                 const data = response.data;
                 if(data.success){
-                    ebooks.value = data.content.list;
+                    categories.value = data.content.list;
                     // 重置分页按钮
                     pagination.value.current = params.page;//当前页
                     pagination.value.total = data.content.total;//总条数
@@ -163,21 +143,16 @@ export default defineComponent({
         };//表格点击页码时触发
 
         // -------- 表单 ---------
-        const ebook = ref({
-            cover: null,
+        const category = ref({
             name: null,
-            category1Id: null,
-            category2Id: null,
-            desc: null,
-            docCount: 0,
-            viewCount: 0,
-            voteCount: 0
+            parent: null,
+            sort: null
         });
         const modalVisible = ref(false);
         const modalLoading = ref(false);
         const handleModalOk = () => {
             modalLoading.value = true;
-            axios.post("/ebook/save", ebook.value).then((response) => {
+            axios.post("/category/save", category.value).then((response) => {
                 modalLoading.value = false;
                 const data = response.data; // data = commonResp
                 if (data.success) {
@@ -199,25 +174,20 @@ export default defineComponent({
          */
         const edit = (record: any) => {
             modalVisible.value = true;
-            ebook.value = Object.assign({}, record);
+            category.value = Object.assign({}, record);
         };
 
         const add = () => {
-            ebook.value = {
-                    cover: null,
-                    name: null,
-                    category1Id: null,
-                    category2Id: null,
-                    desc: null,
-                    docCount: 0,
-                    viewCount: 0,
-                    voteCount: 0
+            category.value = {
+                name: null,
+                parent: null,
+                sort: null
             };
             modalVisible.value = true;
         }
 
         const handleDelete = (record: any) => {
-            axios.delete("/ebook/" + record.id).then((response) => {
+            axios.delete("/category/" + record.id).then((response) => {
                 const data = response.data;
                 if (data.success) {
                     // 重新加载列表
@@ -250,7 +220,7 @@ export default defineComponent({
         //search
         const searchKey = ref("");
         const search = () => {
-            axios.get("/ebook/list", {
+            axios.get("/category/list", {
                 params: {
                     name: searchKey.value,
                     page: 1,
@@ -259,7 +229,7 @@ export default defineComponent({
             }).then((response) => {
                 const data = response.data;
                 if (data.success) {
-                    ebooks.value = data.content.list;
+                    categories.value = data.content.list;
                 } else {
                     message.error(data.message);
                 }
@@ -268,7 +238,7 @@ export default defineComponent({
         }
 
         return {
-            ebooks,
+            categories,
             pagination,
             columns,
             loading,
@@ -278,7 +248,7 @@ export default defineComponent({
             add,
             handleDelete,
 
-            ebook,
+            category,
             modalVisible,
             modalLoading,
             handleModalOk,

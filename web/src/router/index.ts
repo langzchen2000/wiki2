@@ -20,6 +20,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'AdminEbook',
     component: AdminEbook
   },
+  {
+    path: '/admin/category',
+    name: 'AdminCategory',
+    component: () => import('../views/admin/admin-category.vue')
+  }
 ]
 
 const router = createRouter({
