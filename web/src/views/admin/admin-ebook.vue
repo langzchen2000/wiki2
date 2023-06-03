@@ -236,6 +236,10 @@ export default defineComponent({
 
                     level1.value = [];
                     level1.value = array2Tree(categories, 0);
+                    handleQuery({
+                        page: 1,
+                        size: pagination.value.pageSize,
+                    });
 
                 } else {
                     message.error(data.message);
@@ -298,10 +302,7 @@ export default defineComponent({
 
         onMounted(() => {
             handleQueryCategory();
-            handleQuery({
-                page: 1,
-                size: pagination.value.pageSize,
-            });
+
         });
 
         //search

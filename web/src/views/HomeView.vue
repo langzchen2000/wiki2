@@ -4,13 +4,18 @@
             <a-menu
                     mode="inline"
                     :style="{ height: '100%', borderRight: 0 }"
+                    @click="handleMenuClick"
             >
+                <a-menu-item key="welcome">
+                    <MailOutlined />
+                    <span>欢迎</span>
+                </a-menu-item>
                 <a-sub-menu v-for="item in level1" :key="item.id">
                     <template #title>
                         {{item.name}}
                     </template>
                     <a-menu-item v-for="item1 in item.children" :key="item1.id">
-                        <a :href="'/category/' + item1.id">{{ item1.name }}</a>
+                        {{ item1.name }}
                     </a-menu-item>
                 </a-sub-menu>
             </a-menu>
@@ -18,7 +23,10 @@
         <a-layout-content
                 :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
         >
-            <a-list item-layout="vertical" size="large" :grid="{ gutter: 20, column: 3 }" :data-source="ebooks">
+            <div class="welcome" v-show="isShowWelcome">
+                <h1>Welcome to Wiki2 project</h1>
+            </div>
+            <a-list v-show="!isShowWelcome"   item-layout="vertical" size="large" :grid="{ gutter: 20, column: 3 }" :data-source="ebooks">
                 <template #renderItem="{ item }">
                     <a-list-item key="item.name">
                         <template #actions>
@@ -49,20 +57,11 @@ export default defineComponent({
     name: 'HomeView',
     setup() {
         const ebooks = ref();
-        const ebooks1 = reactive({books: []});
+
 
         onMounted(() => {
             handleQueryCategory();
-            axios.get("/ebook/list", {
-                params: {
-                    page: 1,
-                    size: 100
-                }
-            }).then((response) => {
-                const data = response.data;
-                ebooks.value = data.content.list;
-                // ebooks1.books = data.content;
-            });
+
         });
         /*sidebar*/
         const level1 =  ref();
@@ -80,6 +79,15 @@ export default defineComponent({
 
                     level1.value = [];
                     level1.value = array2Tree(categories, 0);
+                    axios.get("/ebook/list", {
+                        params: {
+                            page: 1,
+                            size: 100
+                        }
+                    }).then((response) => {
+                        const data = response.data;
+                        ebooks.value = data.content.list;
+                    });
 
                 } else {
                     message.error(data.message);
@@ -107,6 +115,31 @@ export default defineComponent({
             return result;
         };
 
+        /*welcome*/
+        const isShowWelcome = ref(true);
+        let categoryId2 = 0;
+        const handleMenuClick = (value: any)  => {
+            if (value.key === "welcome") {
+                isShowWelcome.value = true;
+            } else {
+                isShowWelcome.value = false;
+                categoryId2 = value.key;
+                handleQueryEbook();
+            }
+        }
+
+        const handleQueryEbook = () => {
+            axios.get("/ebook/list", {
+                params: {
+                    page: 1,
+                    size: 100,
+                    categoryId2: categoryId2
+                }
+            }).then((response) => {
+                const data = response.data;
+                ebooks.value = data.content.list;
+            })
+        }
         return {
             ebooks,
             // ebooks2: toRef(ebooks1, "books"),
@@ -123,6 +156,8 @@ export default defineComponent({
                 { type: 'MessageOutlined', text: '2' },
             ],
             level1,
+            isShowWelcome,
+            handleMenuClick
         }
     }
 });
