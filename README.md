@@ -1,3 +1,5 @@
+![IDE](https://img.shields.io/badge/IDE-IntelliJ%20IDEA-brightgreen.svg) ![Java](https://img.shields.io/badge/Java-1.8-blue.svg) ![Database](https://img.shields.io/badge/Database-MySQL-lightgrey.svg)
+
 # Wiki2
 
 An E-book management system. On the welcome page, users can browse through all the books available within the system. The admin page allows system administrators to add, edit, and delete books as needed.
