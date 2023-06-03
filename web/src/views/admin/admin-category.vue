@@ -9,7 +9,7 @@
             <a-table
                 :columns="columns"
                 :row-key="record => record.id"
-                :data-source="categories"
+                :data-source="level1"
                 :loading="loading"
                 :pagination="false"
             >
@@ -47,7 +47,14 @@
                 <a-input v-model:value="category.name" />
             </a-form-item>
             <a-form-item label="parent">
-                <a-input v-model:value="category.parent" />
+            <a-select
+                ref="select"
+                v-model:value="category.parent"
+            >
+                    <template v-for="item in level1"  :key="item.id">
+                        <a-select-option :value="item.id" :disabled="item.id == category.id">{{item.name}}</a-select-option>
+                    </template>
+            </a-select>
             </a-form-item>
             <a-form-item label="sort">
                 <a-input v-model:value="category.sort" />
@@ -93,6 +100,8 @@ export default defineComponent({
         /**
          * 数据查询
          **/
+        let level1 = ref();
+        level1.value = [];
         const handleQuery = () => {
             loading.value = true;
             axios.get("/category/all").then((response) => {
@@ -100,12 +109,32 @@ export default defineComponent({
                 const data = response.data;
                 if(data.success){
                     categories.value = data.content;
+                    level1.value = array2Tree(data.content, 0);
                 } else {
                     message.error(data.message);
                 }
             });
         };//onMounted 会在页面渲染之后执行, 点击页码也会触发
 
+    const array2Tree = (array: any, parentId: number) => {
+        if (array.length === 0) {
+            return [];
+        }
+        const result = [];
+        for (let i = 0; i < array.length; i++) {
+            const c = array[i];
+            // console.log(Number(c.parent), Number(parentId));
+            if (Number(c.parent) === Number(parentId)) {
+                result.push(c);
+                // 递归查看当前节点对应的子节点
+                const children = array2Tree(array, c.id);
+                if (children.length > 0) {
+                    c.children = children;
+                }
+            }
+        }
+        return result;
+    }//performance: O(n^2)
 
         // -------- 表单 ---------
         const category = ref({
@@ -212,7 +241,9 @@ export default defineComponent({
             cancel,
 
             searchKey,
-            search
+            search,
+
+            level1
 
         }
     }
