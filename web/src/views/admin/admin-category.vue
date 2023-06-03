@@ -3,29 +3,16 @@
         <a-layout-content
             :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
         >
-            <a-input
-                v-model:value="searchKey"
-                placeholder="input search text"
-                style="width: 200px; margin-right: 8px"
 
-            />
-
-                <a-button type="primary" @click="search" size="large" style="margin-right:8px">Search</a-button>
-
-
-                <a-button type="primary" @click="add" size="large">Add</a-button>
+            <a-button type="primary" @click="add" size="large">Add</a-button>
 
             <a-table
                 :columns="columns"
                 :row-key="record => record.id"
                 :data-source="categories"
-                v-model:pagination="pagination"
                 :loading="loading"
-                @change="handleTableChange"
-            >   <!-- record is an item of data source, @change pass a new pagination object to handleTableChange-->
-                <template #cover="{ text: cover }">
-                    <img v-if="cover" :src="cover" alt="avatar" />
-                </template>
+                :pagination="false"
+            >
                 <template #action="{ record }">
                     <a-space size="small">
                         <a-button type="primary" @click="edit(record)">
@@ -79,11 +66,6 @@ export default defineComponent({
     name: 'AdminCategory',
     setup() {
         const categories = ref();
-        const pagination = ref({
-            current: 1,
-            pageSize: 4,
-            total: 0
-        });
         const loading = ref(false);
 
         const columns = [
@@ -111,36 +93,19 @@ export default defineComponent({
         /**
          * 数据查询
          **/
-        const handleQuery = (params: any) => {
+        const handleQuery = () => {
             loading.value = true;
-            axios.get("/category/list", {
-                params: {
-                    page: params.page,
-                    size: params.size
-                }
-            }).then((response) => {
+            axios.get("/category/all").then((response) => {
                 loading.value = false;
                 const data = response.data;
                 if(data.success){
-                    categories.value = data.content.list;
-                    // 重置分页按钮
-                    pagination.value.current = params.page;//当前页
-                    pagination.value.total = data.content.total;//总条数
+                    categories.value = data.content;
                 } else {
                     message.error(data.message);
                 }
             });
         };//onMounted 会在页面渲染之后执行, 点击页码也会触发
 
-        /**
-         * 表格点击页码时触发
-         */
-        const handleTableChange = (pagination: any) => {
-            handleQuery({
-                page: pagination.current,
-                size: pagination.pageSize
-            });//pagination 可以是任意对象
-        };//表格点击页码时触发
 
         // -------- 表单 ---------
         const category = ref({
@@ -159,10 +124,7 @@ export default defineComponent({
                     modalVisible.value = false;
 
                     // 重新加载列表
-                    handleQuery({
-                        page: pagination.value.current,
-                        size: pagination.value.pageSize,
-                    });
+                    handleQuery();
                 } else {
                     message.error(data.message);
                 }
@@ -186,15 +148,13 @@ export default defineComponent({
             modalVisible.value = true;
         }
 
+
         const handleDelete = (record: any) => {
             axios.delete("/category/" + record.id).then((response) => {
                 const data = response.data;
                 if (data.success) {
                     // 重新加载列表
-                    handleQuery({
-                        page: pagination.value.current,
-                        size: pagination.value.pageSize,
-                    });
+                    handleQuery();
                 }
             });
         };
@@ -211,10 +171,7 @@ export default defineComponent({
         };
 
         onMounted(() => {
-            handleQuery({
-                page: 1,
-                size: pagination.value.pageSize,
-            });
+            handleQuery();
         });
 
         //search
@@ -239,10 +196,8 @@ export default defineComponent({
 
         return {
             categories,
-            pagination,
             columns,
             loading,
-            handleTableChange,
 
             edit,
             add,
