@@ -28,6 +28,11 @@
                 </template>
                 <template #action="{ record }">
                     <a-space size="small">
+                        <router-link to="/admin/doc">
+                            <a-button type="primary" @click="edit(record)">
+                                doc Management
+                            </a-button>
+                        </router-link>
                         <a-button type="primary" @click="edit(record)">
                             Edit
                         </a-button>

@@ -24,7 +24,7 @@ public class CategoryController {
         resp.setContent(list);
         return resp;
     }
-    @GetMapping("/list")
+    @GetMapping("/category/list")
     public CommonResp list(@Valid CategoryQueryReq req) {
         CommonResp<PageResp<CategoryQueryResp>> resp = new CommonResp<>();
         PageResp<CategoryQueryResp> list = categoryService.list(req);
