@@ -28,8 +28,8 @@
                 </template>
                 <template #action="{ record }">
                     <a-space size="small">
-                        <router-link to="/admin/doc">
-                            <a-button type="primary" @click="edit(record)">
+                        <router-link :to="'/admin/doc?ebookId=' + record.id">
+                            <a-button type="primary">
                                 doc Management
                             </a-button>
                         </router-link>
@@ -40,7 +40,7 @@
                             title="Are you sure delete this task?"
                             ok-text="Yes"
                             cancel-text="No"
-                            @confirm="handleDelete(record)"
+                            @confirm="handleDelete(record.id)"
                         >
                             <a-button type="danger">
                                 Delete
@@ -202,6 +202,12 @@ export default defineComponent({
         };//表单提交
 
         /**
+         * 查找整根树枝
+         */
+
+
+
+        /**
          * 编辑
          */
         const edit = (record: any) => {
@@ -281,8 +287,8 @@ export default defineComponent({
             }
             return result;
         };
-        const handleDelete = (record: any) => {
-            axios.delete("/ebook/" + record.id).then((response) => {
+        const handleDelete = (id: number) => {
+            axios.delete("/ebook/delete/").then((response) => {
                 const data = response.data;
                 if (data.success) {
                     // 重新加载列表
