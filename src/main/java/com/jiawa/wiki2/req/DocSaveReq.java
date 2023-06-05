@@ -16,6 +16,16 @@ public class DocSaveReq {
     private Integer viewCount;
 
     private Integer voteCount;
+    @NotNull(message="content cannot be null")
+    private String content;
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 
     public Long getId() {
         return id;
@@ -72,4 +82,7 @@ public class DocSaveReq {
     public void setVoteCount(Integer voteCount) {
         this.voteCount = voteCount;
     }
+
+
+
 }

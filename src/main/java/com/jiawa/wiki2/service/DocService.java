@@ -2,8 +2,10 @@ package com.jiawa.wiki2.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.jiawa.wiki2.domain.Content;
 import com.jiawa.wiki2.domain.Doc;
 import com.jiawa.wiki2.domain.DocExample;
+import com.jiawa.wiki2.mapper.ContentMapper;
 import com.jiawa.wiki2.mapper.DocMapper;
 import com.jiawa.wiki2.req.DocQueryReq;
 import com.jiawa.wiki2.req.DocSaveReq;
@@ -23,6 +25,8 @@ import java.util.List;
 public class DocService {
     @Resource//这里的Resource是Java的注解，不是Spring的注解
     private DocMapper docMapper;
+    @Resource//这里的Resource是Java的注解，不是Spring的注解
+    private ContentMapper contentMapper;
     @Resource
     private SnowFlake snowFlakeService;
     private static final Logger LOG = LoggerFactory.getLogger(DocService.class);
@@ -56,14 +60,27 @@ public class DocService {
 
     public void save(DocSaveReq req) {
         Doc doc = CopyUtil.copy(req, Doc.class);
+        Content content = CopyUtil.copy(req, Content.class);
         if (ObjectUtils.isEmpty(req.getId())) {
             // 新增
             doc.setId(snowFlakeService.nextId());
             docMapper.insert(doc);
+            content.setId(doc.getId());
+            contentMapper.insert(content);
         } else {
             // 更新
             docMapper.updateByPrimaryKey(doc);
+            int count = contentMapper.updateByPrimaryKeyWithBLOBs(content);
+            if(count == 0) {
+                contentMapper.insert(content);
+            }
         }
+    }
+
+    public String findContent(Long id) {
+        Content content = contentMapper.selectByPrimaryKey(id);
+        if(content == null) return "";
+        else return content.getContent();
     }
 
     public void delete(List<String> ids) {

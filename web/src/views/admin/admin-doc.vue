@@ -44,13 +44,19 @@
                                     </template>
                         </a-table>
                 </a-col>
-                <a-col :span="18">
-                    <a-form :model="doc" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+                <a-col :span="16">
+                    <p style="padding-left:60px">
+                        <a-button type="primary" @click="handleSave()" >
+                            Save
+                        </a-button>
+                    </P>
 
-                        <a-form-item label="name">
+                    <a-form :model="doc">
+
+                        <a-form-item label="name" style="padding-left:13px">
                             <a-input v-model:value="doc.name" />
                         </a-form-item>
-                        <a-form-item label="parent">
+                        <a-form-item label="parent" style="padding-left:7px">
                             <a-tree-select
                                 v-model:value="doc.parent"
                                 style="width: 100%"
@@ -62,7 +68,7 @@
                             >
                             </a-tree-select>
                         </a-form-item>
-                        <a-form-item label="sort">
+                        <a-form-item label="sort" style="padding-left:23px">
                             <a-input v-model:value="doc.sort" />
                         </a-form-item>
                         <a-form-item label="content">
@@ -171,28 +177,11 @@ export default defineComponent({
         const valueHtml = ref('<p></p>')
         const toolbarConfig = {}
         const editorConfig = { placeholder: '请输入内容...' }
-        const doc = ref({
-            name: null,
-            parent: null,
-            sort: null,
-            ebookId: route.query.ebookId
-        });
+        const doc = ref();
+        doc.value = {};
         const modalVisible = ref(false);
         const modalLoading = ref(false);
-        const handleModalOk = () => {
-            modalLoading.value = true;
-            axios.post("/doc/save", doc.value).then((response) => {
-                modalLoading.value = false;
-                const data = response.data; // data = commonResp
-                if (data.success) {
-                    modalVisible.value = false;
-                    // 重新加载列表
-                    handleQuery();
-                } else {
-                    message.error(data.message);
-                }
-            });
-        };//表单提交
+
         /**
          * 将某节点及其子孙节点全部置为disabled
          */
@@ -232,9 +221,21 @@ export default defineComponent({
         /**
          * 编辑
          */
+        const handleQueryContent = () => {
+            axios.get("/doc/content/" + doc.value.id)
+                .then((response) => {
+                const data = response.data;
+                if (data.success) {
+                    editorRef.value.setHtml(data.content);
+                } else {
+                    message.error(data.message);
+                }
+            });
+        };
         const edit = (record: any) => {
 
             doc.value = Object.assign({}, record);
+            handleQueryContent();
             treeSelectData.value = Object.assign([], level1.value);
             setDisable(treeSelectData.value, record.id);//将当前节点及其子孙节点全部置为disabled
             // 为选择树添加一个"无"
@@ -244,14 +245,23 @@ export default defineComponent({
         const add = () => {
             treeSelectData.value = Object.assign([], level1.value);
             doc.value = {
-                name: null,
-                parent: null,
-                sort: null,
                 ebookId: route.query.ebookId
             };
-
-
         }
+
+        const handleSave = () => {
+            doc.value.content = editorRef.value.getHtml();
+            axios.post("/doc/save", doc.value).then((response) => {
+                modalLoading.value = false;
+                const data = response.data; // data = commonResp
+                if (data.success) {
+                    // 重新加载列表
+                    handleQuery();
+                } else {
+                    message.error(data.message);
+                }
+            });
+        };
 
         /**
          * 查找整根树枝
@@ -346,7 +356,6 @@ export default defineComponent({
             doc,
             modalVisible,
             modalLoading,
-            handleModalOk,
 
             confirm,
             cancel,
@@ -356,13 +365,15 @@ export default defineComponent({
 
             level1,
             treeSelectData,
+
             //editor
             editorRef,
             valueHtml,
             mode: 'default', // 或 'simple'
             toolbarConfig,
             editorConfig,
-            handleCreated
+            handleCreated,
+            handleSave
 
         }
     }
