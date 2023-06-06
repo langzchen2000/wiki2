@@ -19,10 +19,10 @@ import java.util.List;
 public class DocController {
     @Resource
     private DocService docService;
-    @GetMapping("/doc/all")
-    public CommonResp list() {//DocReq is POJO, 是封装请求的类
+    @GetMapping("/doc/all/{ebookId}")
+    public CommonResp list(@PathVariable Long ebookId) {//DocReq is POJO, 是封装请求的类
         CommonResp<List<DocQueryResp>> resp = new CommonResp<>();
-        List<DocQueryResp> list = docService.all();
+        List<DocQueryResp> list = docService.all(ebookId);
         resp.setContent(list);
         return resp;
     }

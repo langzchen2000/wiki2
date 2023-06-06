@@ -58,13 +58,15 @@
                         </a-form-item>
                         <a-form-item label="parent" style="padding-left:7px">
                             <a-tree-select
-                                v-model:value="doc.parent"
                                 style="width: 100%"
                                 :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
                                 :tree-data="treeSelectData"
                                 placeholder="Please select a parent doc"
-                                tree-default-expand-all
-                                :replaceFields="{title: 'name', key: 'id', value: 'id'}"
+                                :field-names="{
+                                    children: 'children',
+                                    label: 'name',
+                                    value: 'id',
+                                }"
                             >
                             </a-tree-select>
                         </a-form-item>
@@ -116,7 +118,8 @@ export default defineComponent({
         const route = useRoute();
         const categories = ref();
         const loading = ref(false);
-
+        const treeSelectData = ref();
+        treeSelectData.value = [];
         const columns = [
             {
                 title: 'name',
@@ -137,12 +140,13 @@ export default defineComponent({
         const handleQuery = () => {
             loading.value = true;
             level1.value = [];
-            axios.get("/doc/all").then((response) => {
+            axios.get("/doc/all/" + route.query.ebookId).then((response) => {
                 loading.value = false;
                 const data = response.data;
                 if(data.success){
                     categories.value = data.content;
                     level1.value = array2Tree(data.content, 0);
+                    treeSelectData.value = Object.assign([], level1.value);
                 } else {
                     message.error(data.message);
                 }
@@ -170,8 +174,7 @@ export default defineComponent({
     }//performance: O(n^2)
 
         // -------- 表单 ---------
-        const treeSelectData = ref();
-        treeSelectData.value = [];
+
         const editorRef = shallowRef()
         // 内容 HTML
         const valueHtml = ref('<p></p>')
@@ -222,7 +225,7 @@ export default defineComponent({
          * 编辑
          */
         const handleQueryContent = () => {
-            axios.get("/doc/content/" + doc.value.id)
+            axios.get("//content/" + doc.value.id)
                 .then((response) => {
                 const data = response.data;
                 if (data.success) {
