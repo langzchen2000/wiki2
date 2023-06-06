@@ -1,0 +1,14 @@
+
+
+name=TEST
+
+###
+
+GET http://localhost:3435/ebook/list?name=Vue
+
+###
+###
+
+DELETE http://localhost:3435/doc/delete/3,4
+Content-Type: application/json
+
