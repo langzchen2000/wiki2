@@ -244,6 +244,7 @@ export default defineComponent({
 
         const add = () => {
             treeSelectData.value = Object.assign([], level1.value);
+            editorRef.value.setHtml("");
             doc.value = {
                 ebookId: route.query.ebookId
             };

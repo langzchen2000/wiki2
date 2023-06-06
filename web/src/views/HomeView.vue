@@ -37,7 +37,7 @@
                         </template>
                         <a-list-item-meta :description="item.description">
                             <template #title>
-                                <a :href="item.href">{{ item.name }}</a>
+                                <router-link :to="'/doc?ebookId=' + item.id">{{item.name}}</router-link>
                             </template>
                             <template #avatar><a-avatar :src="item.cover"/></template>
                         </a-list-item-meta>
@@ -61,7 +61,6 @@ export default defineComponent({
 
         onMounted(() => {
             handleQueryCategory();
-
         });
         /*sidebar*/
         const level1 =  ref();
@@ -79,15 +78,6 @@ export default defineComponent({
 
                     level1.value = [];
                     level1.value = array2Tree(categories, 0);
-                    axios.get("/ebook/list", {
-                        params: {
-                            page: 1,
-                            size: 100
-                        }
-                    }).then((response) => {
-                        const data = response.data;
-                        ebooks.value = data.content.list;
-                    });
 
                 } else {
                     message.error(data.message);
