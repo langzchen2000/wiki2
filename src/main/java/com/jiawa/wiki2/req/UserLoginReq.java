@@ -6,7 +6,7 @@ import javax.validation.constraints.Pattern;
 public class UserLoginReq {
 
 
-@NotNull(message = "[username] should not be null")
+    @NotNull(message = "[username] should not be null")
     private String loginName;
 
     @NotNull(message = "Password shouldn't be empty")
