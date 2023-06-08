@@ -7,9 +7,11 @@ import com.jiawa.wiki2.domain.UserExample;
 import com.jiawa.wiki2.exception.BusinessException;
 import com.jiawa.wiki2.exception.BusinessExceptionCode;
 import com.jiawa.wiki2.mapper.UserMapper;
+import com.jiawa.wiki2.req.UserLoginReq;
 import com.jiawa.wiki2.req.UserQueryReq;
 import com.jiawa.wiki2.req.UserSavePassReq;
 import com.jiawa.wiki2.req.UserSaveReq;
+import com.jiawa.wiki2.resp.UserLoginResp;
 import com.jiawa.wiki2.resp.UserQueryResp;
 import com.jiawa.wiki2.resp.PageResp;
 import com.jiawa.wiki2.util.CopyUtil;
@@ -88,6 +90,25 @@ public class UserService {
     public void resetPassword(UserSavePassReq req) {
         User user = CopyUtil.copy(req, User.class);
         userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    public UserLoginResp login(UserLoginReq req) {
+        User user = selectByLoginName(req.getLoginName());
+        if(user == null) {
+            // 用户名不存在
+            LOG.info("用户名不存在, {}", req.getLoginName());
+            throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
+        } else {
+            if(user.getPassword().equals(req.getPassword())) {
+                // 登录成功
+                UserLoginResp userLoginResp = CopyUtil.copy(user, UserLoginResp.class);
+                return userLoginResp;
+            } else {
+                // 密码不对
+                LOG.info("密码不对, 输入密码：{}, 数据库密码：{}", req.getPassword(), user.getPassword());
+                throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
+            }
+        }
     }
 
 }
