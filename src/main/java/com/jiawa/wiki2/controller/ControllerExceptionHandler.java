@@ -1,5 +1,6 @@
 package com.jiawa.wiki2.controller;
 
+import com.jiawa.wiki2.exception.BusinessException;
 import com.jiawa.wiki2.resp.CommonResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,4 +31,15 @@ public class ControllerExceptionHandler {
         commonResp.setMessage(e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
         return commonResp;
     }
+
+    @ExceptionHandler(value = BusinessException.class)
+    @ResponseBody
+    public CommonResp validExceptionHandler(BusinessException e) {
+        CommonResp commonResp = new CommonResp();
+        LOG.error("异常", e);
+        commonResp.setSuccess(false);
+        commonResp.setMessage(e.getCode().getDesc());
+        return commonResp;
+    }
+
 }
