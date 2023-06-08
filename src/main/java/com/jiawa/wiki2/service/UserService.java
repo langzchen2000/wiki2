@@ -8,6 +8,7 @@ import com.jiawa.wiki2.exception.BusinessException;
 import com.jiawa.wiki2.exception.BusinessExceptionCode;
 import com.jiawa.wiki2.mapper.UserMapper;
 import com.jiawa.wiki2.req.UserQueryReq;
+import com.jiawa.wiki2.req.UserSavePassReq;
 import com.jiawa.wiki2.req.UserSaveReq;
 import com.jiawa.wiki2.resp.UserQueryResp;
 import com.jiawa.wiki2.resp.PageResp;
@@ -82,6 +83,11 @@ public class UserService {
         } else {
             return userList.get(0);
         }
+    }
+
+    public void resetPassword(UserSavePassReq req) {
+        User user = CopyUtil.copy(req, User.class);
+        userMapper.updateByPrimaryKeySelective(user);
     }
 
 }

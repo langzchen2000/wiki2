@@ -23,8 +23,11 @@
 
                 <template #action="{ record }">
                     <a-space size="small">
+                        <a-button type="primary" @click="resetPass(record)">
+                            Reset Password
+                        </a-button>
                         <a-button type="primary" @click="edit(record)">
-                            Edit
+                            Update Username
                         </a-button>
                         <a-popconfirm
                             title="Are you sure deleting this user?"
@@ -49,13 +52,32 @@
         @ok="handleModalOk"
     >
         <a-form :model="user" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-            <a-form-item label="user name">
+            <a-form-item label="username">
                 <a-input v-model:value="user.name" />
             </a-form-item>
-            <a-form-item label="login name" >
+            <a-form-item label="id" >
                 <a-input v-model:value="user.loginName" type="textarea" :disabled="!!user.id"/>
             </a-form-item>
-            <a-form-item label="password">
+            <a-form-item label="password" v-show="!user.id">
+                <a-input v-model:value="user.password" type="textarea" />
+            </a-form-item>
+        </a-form>
+    </a-modal>
+
+    <a-modal
+        title="Password Reset"
+        v-model:visible="resetVisible"
+        :confirm-loading="resetLoading"
+        @ok="handleResetOk"
+    >
+        <a-form :model="user" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+            <a-form-item label="username">
+                <a-input v-model:value="user.name" :disabled="true"/>
+            </a-form-item>
+            <a-form-item label="id" >
+                <a-input v-model:value="user.loginName" type="textarea" :disabled="!!user.id"/>
+            </a-form-item>
+            <a-form-item label="new password">
                 <a-input v-model:value="user.password" type="textarea" />
             </a-form-item>
         </a-form>
@@ -80,11 +102,11 @@ export default defineComponent({
 
         const columns = [
             {
-                title: 'Login Name',
+                title: 'login name',
                 dataIndex: 'loginName',
             },
             {
-                title: 'name',
+                title: 'username',
                 dataIndex: 'name'
             },
             {
@@ -146,7 +168,6 @@ export default defineComponent({
                 const data = response.data; // data = commonResp
                 if (data.success) {
                     modalVisible.value = false;
-
                     // 重新加载列表
                     handleQuery({
                         page: pagination.value.current,
@@ -159,8 +180,34 @@ export default defineComponent({
         };//表单提交
 
         /**
-         * 查找整根树枝
+         * reset password
          */
+        const resetVisible = ref(false);
+        const resetLoading = ref(false);
+        const resetPass = (record: any) => {
+            resetVisible.value = true;
+            user.value = Object.assign({}, record);
+            user.value.password = null;
+        };
+
+        const handleResetOk = () => {
+            resetLoading.value = true;
+            user.value.password = hexMd5(user.value.password + "3kx93");
+            axios.post("/user/save", user.value).then((response) => {
+                resetLoading.value = false;
+                const data = response.data; // data = commonResp
+                if (data.success) {
+                    resetVisible.value = false;
+                    // 重新加载列表
+                    handleQuery({
+                        page: pagination.value.current,
+                        size: pagination.value.pageSize,
+                    });
+                } else {
+                    message.error(data.message);
+                }
+            });
+        };
 
 
 
@@ -243,6 +290,11 @@ export default defineComponent({
             columns,
             loading,
             handleTableChange,
+
+            resetPass,
+            resetVisible,
+            resetLoading,
+            handleResetOk,
 
             edit,
             add,
