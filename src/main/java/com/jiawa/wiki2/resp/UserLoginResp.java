@@ -7,6 +7,27 @@ public class UserLoginResp {
 
     private String name;
 
+    private Long token;
+
+    public Long getToken() {
+        return token;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("UserLoginResp{");
+        sb.append("id=").append(id);
+        sb.append(", loginName='").append(loginName).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", token=").append(token);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public void setToken(Long token) {
+        this.token = token;
+    }
+
     public Long getId() {
         return id;
     }
@@ -32,16 +53,4 @@ public class UserLoginResp {
     }
 
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", loginName=").append(loginName);
-        sb.append(", name=").append(name);
-        sb.append("]");
-        return sb.toString();
-    }
 }

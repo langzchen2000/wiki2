@@ -8,3 +8,7 @@ name=TEST
 GET http://localhost:3435/test/list
 
 ###
+GET http://localhost:3435/redis/set/123/12345
+
+###
+GET http://localhost:3435/redis/get/123

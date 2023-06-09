@@ -1,15 +1,16 @@
 package com.jiawa.wiki2.req;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 public class UserLoginReq {
 
 
-    @NotNull(message = "[username] should not be null")
+    @NotEmpty(message = "username should not be null")
     private String loginName;
 
-    @NotNull(message = "Password shouldn't be empty")
+    @NotEmpty(message = "Password shouldn't be empty")
     @Pattern(regexp = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,32}$", message = "password or login name not correct")
     private String password;
 

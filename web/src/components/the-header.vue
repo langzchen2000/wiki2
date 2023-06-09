@@ -1,8 +1,11 @@
 <template>
     <a-layout-header class="header">
             <div class="logo" />
-            <a class="login-menu" @click="showLoginModal">
-              <span>登录</span>
+            <a class="login-menu" v-show="user.id">
+                <span>Hello, {{user.name}}</span>
+            </a>
+            <a class="login-menu" @click="showLoginModal" v-if="!user.id">
+              <span>Login</span>
             </a>
             <a-menu
                     theme="dark"
@@ -15,12 +18,16 @@
                 <a-menu-item key="/admin/ebook">
                     <router-link to="/admin/ebook">admin</router-link>
                 </a-menu-item>
+                <a-menu-item key="/admin/user">
+                    <router-link to="/admin/user">users</router-link>
+                </a-menu-item>
                 <a-menu-item key="/about">
                     <router-link to="/about">about</router-link>
                 </a-menu-item>
                 <a-menu-item key="/admin/category">
                     <router-link to="/admin/category">category</router-link>
                 </a-menu-item>
+
 
             </a-menu>
     </a-layout-header>
@@ -35,7 +42,7 @@
                 <a-input v-model:value="user.loginName" type="textarea"/>
             </a-form-item>
             <a-form-item label="Password">
-                <a-input v-model:value="user.password" type="textarea" />
+                <a-input v-model:value="user.password" type="password"  />
             </a-form-item>
         </a-form>
     </a-modal>
@@ -50,36 +57,37 @@
       name: 'the-header',
       setup() {
           //modal
-
           const visible = ref(false);
           const user = ref({
+              id: '',
+              name: '',
               loginName: '',
               password: ''
           })
           const loading = ref(false);
           const handleOk = () => {
             loading.value = true;
-            user.value.password = hexMd5(user.value.password);
-            axios.post('/user/login', user.value).then((response) => {
+            let u = Object.assign({}, user.value);
+            u.password = hexMd5(u.password + "3kx93");
+            axios.post('/user/login', u).then((response) => {
                 const res = response.data;
                 if (res.success) {
                     loading.value = false;
                     message.success('登录成功');
+                    user.value = res.content;
                     visible.value = false;
                 } else {
                     loading.value = false;
                     message.error(res.message);
                 }
             })
-
           };
 
           const showLoginModal = () => {
+              user.value.loginName = '';
+              user.value.password = '';
               visible.value = true;
           };
-
-
-
 
           return {
               showLoginModal,
