@@ -27,8 +27,6 @@
                 <a-menu-item key="/admin/category">
                     <router-link to="/admin/category">category</router-link>
                 </a-menu-item>
-
-
             </a-menu>
     </a-layout-header>
     <a-modal
