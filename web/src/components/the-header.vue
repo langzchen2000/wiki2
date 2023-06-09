@@ -1,12 +1,22 @@
 <template>
     <a-layout-header class="header">
             <div class="logo" />
-            <a class="login-menu" v-show="user.id">
+            <a class="login-menu" v-if="user.id">
                 <span>Hello, {{user.name}}</span>
             </a>
             <a class="login-menu" @click="showLoginModal" v-if="!user.id">
               <span>Login</span>
             </a>
+            <a-popconfirm
+                    title="Log out?"
+                    ok-text="Yes"
+                    cancel-text="No"
+                    @confirm="logout()"
+            >
+              <a class="login-menu" v-show="user.id">
+                  <span>Logout</span>
+              </a>
+            </a-popconfirm>
             <a-menu
                     theme="dark"
                     mode="horizontal"
@@ -15,16 +25,16 @@
                 <a-menu-item key="/">
                     <router-link to="/">homepage</router-link>
                 </a-menu-item>
-                <a-menu-item key="/admin/ebook">
+                <a-menu-item key="/admin/ebook" v-if="user.id">
                     <router-link to="/admin/ebook">admin</router-link>
                 </a-menu-item>
-                <a-menu-item key="/admin/user">
+                <a-menu-item key="/admin/user" v-if="user.id">
                     <router-link to="/admin/user">users</router-link>
                 </a-menu-item>
                 <a-menu-item key="/about">
                     <router-link to="/about">about</router-link>
                 </a-menu-item>
-                <a-menu-item key="/admin/category">
+                <a-menu-item key="/admin/category" v-if="user.id">
                     <router-link to="/admin/category">category</router-link>
                 </a-menu-item>
             </a-menu>
@@ -47,21 +57,17 @@
 </template>
 
 <script lang="ts">
-  import {defineComponent, ref} from 'vue';
+  import {defineComponent, ref, computed} from 'vue';
   import axios from "axios";
   import {message} from "ant-design-vue";
+  import store from "@/store";
   declare let hexMd5: any;
   export default defineComponent({
       name: 'the-header',
       setup() {
           //modal
           const visible = ref(false);
-          const user = ref({
-              id: '',
-              name: '',
-              loginName: '',
-              password: ''
-          })
+          const user = computed(() => store.state.user);
           const loading = ref(false);
           const handleOk = () => {
             loading.value = true;
@@ -72,7 +78,7 @@
                 if (res.success) {
                     loading.value = false;
                     message.success('登录成功');
-                    user.value = res.content;
+                    store.commit('setUser', res.content);
                     visible.value = false;
                 } else {
                     loading.value = false;
@@ -80,6 +86,19 @@
                 }
             })
           };
+
+          const logout = () => {
+              axios.get('/user/logout/' + user.value.token).then((response) => {
+                  const res = response.data;
+                  if (res.success) {
+                      store.commit('setUser', {});
+                      message.success('Successfully logged out');
+                  } else {
+                      message.error(res.message);
+                  }
+              })
+          };
+
 
           const showLoginModal = () => {
               user.value.loginName = '';
@@ -92,7 +111,8 @@
               visible,
               handleOk,
               user,
-              loading
+              loading,
+              logout
 
           }
       }

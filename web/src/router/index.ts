@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AdminEbook from '../views/admin/admin-ebook.vue'
+import store from "@/store";
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -23,22 +24,34 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/admin/ebook',
     name: 'AdminEbook',
-    component: AdminEbook
+    component: AdminEbook,
+    meta: {
+      loginRequired: true
+    }
   },
   {
     path: '/admin/category',
     name: 'AdminCategory',
-    component: () => import('../views/admin/admin-category.vue')
+    component: () => import('../views/admin/admin-category.vue'),
+    meta: {
+      loginRequired: true
+    }
   },
   {
     path: '/admin/doc',
     name: 'AdminDoc',
-    component: () => import('../views/admin/admin-doc.vue')
+    component: () => import('../views/admin/admin-doc.vue'),
+    meta: {
+      loginRequired: true
+    }
   },
   {
     path: '/admin/user',
     name: 'AdminUser',
-    component: () => import('../views/admin/admin-user.vue')
+    component: () => import('../views/admin/admin-user.vue'),
+    meta: {
+      loginRequired: true
+    }
   }
 ]
 
@@ -46,5 +59,22 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
+
+router.beforeEach((to, from, next) => {
+  // 要不要对meta.loginRequire属性做监控拦截
+  if (to.matched.some(function (item) {
+    return item.meta.loginRequired
+  })) {
+    const loginUser = store.state.user;
+    if (loginUser == null || loginUser.id == null) {
+      console.log("用户未登录！");
+      next('/');
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
 
 export default router

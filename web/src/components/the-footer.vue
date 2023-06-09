@@ -1,10 +1,18 @@
 <a-layout-footer style="text-align: center">
-jiawa.wiki2
+ blogger: {{user.name}}
 </a-layout-footer>
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {computed, defineComponent} from 'vue';
+import store from "@/store";
 
 export default defineComponent({
-    name: 'the-footer'
+    name: 'the-footer',
+    setup() {
+        const user = computed(() => store.state.user);
+
+        return {
+            user
+        }
+    }
 })
 </script>
