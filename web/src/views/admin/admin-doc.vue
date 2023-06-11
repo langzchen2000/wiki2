@@ -58,6 +58,7 @@
                         </a-form-item>
                         <a-form-item label="parent" style="padding-left:7px">
                             <a-tree-select
+                                v-model:value="doc.parent"
                                 style="width: 100%"
                                 :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
                                 :tree-data="treeSelectData"
@@ -116,7 +117,7 @@ export default defineComponent({
     components: { Editor, Toolbar },
     setup() {
         const route = useRoute();
-        const categories = ref();
+
         const loading = ref(false);
         const treeSelectData = ref();
         treeSelectData.value = [];
@@ -144,7 +145,6 @@ export default defineComponent({
                 loading.value = false;
                 const data = response.data;
                 if(data.success){
-                    categories.value = data.content;
                     level1.value = array2Tree(data.content, 0);
                     treeSelectData.value = Object.assign([], level1.value);
                 } else {
@@ -206,6 +206,12 @@ export default defineComponent({
                             setDisable(children, children[j].id)
                         }
                     }
+                } else {
+                    // 如果当前节点不是目标节点，则到其子节点再找找看。
+                    const children = node.children;
+                    if (children !== undefined && children.length > 0) {
+                        setDisable(children, id);
+                    }
                 }
             }
 
@@ -225,7 +231,7 @@ export default defineComponent({
          * 编辑
          */
         const handleQueryContent = () => {
-            axios.get("//content/" + doc.value.id)
+            axios.get("/doc/content/" + doc.value.id)
                 .then((response) => {
                 const data = response.data;
                 if (data.success) {
@@ -239,10 +245,10 @@ export default defineComponent({
 
             doc.value = Object.assign({}, record);
             handleQueryContent();
-            treeSelectData.value = Object.assign([], level1.value);
+            treeSelectData.value = JSON.parse(JSON.stringify(level1.value));
             setDisable(treeSelectData.value, record.id);//将当前节点及其子孙节点全部置为disabled
             // 为选择树添加一个"无"
-            treeSelectData.value.unshift({id: 0, name: 'null'});
+            treeSelectData.value.unshift({id: 0, name: '0'});
         };
 
         const add = () => {
@@ -339,7 +345,7 @@ export default defineComponent({
             }).then((response) => {
                 const data = response.data;
                 if (data.success) {
-                    categories.value = data.content.list;
+                    //categories.value = data.content.list;
                 } else {
                     message.error(data.message);
                 }
@@ -348,7 +354,6 @@ export default defineComponent({
         }
 
         return {
-            categories,
             columns,
             loading,
             handleQuery,
